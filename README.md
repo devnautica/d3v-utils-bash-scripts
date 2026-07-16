@@ -1,4 +1,4 @@
-# deez-scripts
+# Devnautica Bash Utils 
 
 This repository is repository for building scripts that helps to do multiple things with developed software:
 - Version on github 

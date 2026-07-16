@@ -8,7 +8,7 @@ Never run `git commit` or `git push` in this repository, even if asked to perfor
 
 ## Purpose
 
-This repo (`deez-scripts`) is devnautica's source of truth for local tooling + CI/CD scripts shared across their projects (java, react, python, kmp, ios native, android/kotlin native — see root `README.md`). It is licensed under PolyForm Noncommercial 1.0.0 (`LICENSE`) — noncommercial use only; commercial use requires contacting `boss@devnautica.com`.
+This repo (`d3v-utils-bash-scripts`) is devnautica's source of truth for local tooling + CI/CD scripts shared across their projects (java, react, python, kmp, ios native, android/kotlin native — see root `README.md`). It is licensed under PolyForm Noncommercial 1.0.0 (`LICENSE`) — noncommercial use only; commercial use requires contacting `boss@devnautica.com`.
 
 There is no build system, package manager, or test suite here — it's plain shell + YAML. Validate changes by reading the script logic and, where possible, tracing through the workflow steps manually; `bash -n <file>` for a quick syntax check.
 
