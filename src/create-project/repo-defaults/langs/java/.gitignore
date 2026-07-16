@@ -1,0 +1,61 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/test/**/target/
+!**/src/main/**/target/
+HELP.md
+
+
+#SCSS/CSS
+#**/scss/*.css
+#**/scss/*.css.map
+#*.sass.map
+#*.scss.map
+### STS ###
+.classpath
+.factorypath
+.apt_generated
+.project
+.springBeans
+.sts4-cache
+.settings
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### App secrets ###
+/src/main/resources/secrets.env
+/src/main/resources/secrets.dev.env
+/src/main/resources/secrets.development.env
+/src/main/resources/dev.secrets.env
+/src/main/resources/secrets.develop.env
+/src/main/resources/develop.secrets.env
+/src/main/resources/development.secrets.env
+
+/src/main/resources/secrets.local.env
+
+/src/main/resources/secrets.stg.env
+/src/main/resources/stg.secrets.env
+/src/main/resources/secrets.stage.env
+/src/main/resources/stage.secrets.env
+
+/src/main/resources/secrets.prod.env
+/src/main/resources/prod.secrets.env
+/src/main/resources/secrets.production.env
+/src/main/resources/production.secrets.env
+/src/main/resources/secrets-prod.env
