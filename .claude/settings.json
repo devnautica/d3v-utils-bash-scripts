@@ -5,5 +5,19 @@
       "Read(../**)"
     ],
     "additionalDirectories": [".."]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -n \"$f\" ] && git add -- \"$f\"; } 2>/dev/null || true",
+            "statusMessage": "git add new file"
+          }
+        ]
+      }
+    ]
   }
 }

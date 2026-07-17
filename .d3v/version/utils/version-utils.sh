@@ -98,6 +98,18 @@ copy_version_to_platform_file() {
     esac
 }
 
+# resolves the language for the current repo: $PLATFORM when util_resolve-platform.sh
+# recognized it, or app.language out of app.properties when it didn't (PLATFORM=unknown -
+# eg. this repo's own plain bash scripts, which has no marker file for
+# util_resolve-platform.sh to detect).
+resolve_platform_language() {
+    if [ "${PLATFORM}" = "unknown" ]; then
+        get_version_field "app.language"
+    else
+        echo "${PLATFORM}"
+    fi
+}
+
 # writes the given version into pom.xml's own <version> tag - if there's a <parent>
 # block, its own <version> is skipped; works for pom.xml with or without a <parent>
 # (eg. a standalone java-lib pom.xml has none). Edits directly instead of shelling
@@ -201,6 +213,7 @@ publish_new_version_branch() {
     # and other jobs (eg. build) rely on this tag existing on origin to check it out
     git push origin "${VERSION_TAG_PREFIX}${new_version}"
     echo "BUILD_VERSION=${new_version}" >>"${VERSION_ENV_FILE}"
+    echo "PLATFORM_LANGUAGE=$(resolve_platform_language)" >>"${VERSION_ENV_FILE}"
 }
 
 # TODO If version doesn't contain bug version (only major.minor.patch) check for duplicates on the main and resolve atomicity

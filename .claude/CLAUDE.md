@@ -12,6 +12,8 @@ These rules override default tool-permission behavior for this repository. More 
 
 Never run `git commit` or `git push` in this repository, even if asked to perform the full workflow. Make the requested changes and let the user review and commit/push manually.
 
+Always `git add` any file you create, so new files are staged for the user's review. A `PostToolUse` hook in `.claude/settings.json` already does this automatically after every `Write`; keep doing it explicitly too if you create a file by other means. Staging only — never `git commit`/`git push` (see above).
+
 ## Purpose
 
 This repo (`d3v-utils-bash-scripts`) is devnautica's source of truth for local tooling + CI/CD scripts shared across their projects (java, react, python, kmp, ios native, android/kotlin native — see root `README.md`). It is licensed under PolyForm Noncommercial 1.0.0 (`LICENSE`) — noncommercial use only; commercial use requires contacting `boss@devnautica.com`.

@@ -11,3 +11,5 @@ These rules override default tool-permission behavior for this repository. More 
 ## Git
 
 Never run `git commit` or `git push` in this repository, even if asked to perform the full workflow. Make the requested changes and let the user review and commit/push manually.
+
+Always `git add` any file you create, so new files are staged for the user's review. A `PostToolUse` hook in `.claude/settings.json` already does this automatically after every `Write`; keep doing it explicitly too if you create a file by other means. Staging only — never `git commit`/`git push` (see above).
