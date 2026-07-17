@@ -4,10 +4,15 @@
 #
 # It downloads the latest release archive (built by this repo's publish workflow:
 # <app.fullname>-<version>.tar.gz, containing src/, LICENSE, README.md), unpacks
-# it, and copies the runnable script folders into the project's .d3v/ root — the
-# directory this script is run from.
+# it, and:
+#   1. copies the runnable script folders into the project's .d3v/ root, and
+#   2. if the archive carries an app-type template matching this project's
+#      language+type (from app.properties), refreshes that template's .github/
+#      (CI workflows) into the project root.
+# The .d3v/ root is the directory this script is run from.
 #
-# app.properties (the project's own version state) is NEVER touched.
+# app.properties (the project's own version state) is NEVER touched, and only
+# .github/ is refreshed at the project root — pom.xml, sources, etc. are left alone.
 #
 # Self-contained on purpose: it must be able to (re)install shell-utils, so it
 # does NOT source constants.sh / utils.sh. Runs in CI and locally. GH_TOKEN or
@@ -19,7 +24,7 @@ readonly SOURCE_REPO="devnautica/d3v-utils-bash-scripts"
 # folders inside the archive's src/ that a consuming project's .d3v/ needs.
 # update-scripts itself is intentionally NOT refreshed here: removing the folder
 # of the currently-running script mid-run is unsafe (bash reads scripts lazily).
-readonly REFRESH_DIRS=("version" "shell-utils")
+readonly REFRESH_DIRS=("version" "shell-utils" "github-actions")
 
 # ---- locate the project's .d3v root -----------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -44,6 +49,11 @@ if ! D3V_DIR="$(resolve_d3v_dir)"; then
     exit 1
 fi
 echo "update-scripts: target .d3v root = ${D3V_DIR}"
+
+# read a single key=value from the project's app.properties (self-contained)
+_get_prop() {
+    grep -m1 "^$1=" "${D3V_DIR}/app.properties" 2>/dev/null | cut -d= -f2-
+}
 
 # ---- token (optional for public repos, required for private) ----------------
 TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
@@ -124,5 +134,35 @@ for d in "${REFRESH_DIRS[@]}"; do
         echo "update-scripts: WARNING — '${d}' not found in archive, skipping."
     fi
 done
+
+# ---- refresh this project's app-type CI (.github) from the archive ----------
+# The archive carries per-project-type CI templates under
+# github-actions/<language>/<app-type>/. If one matches this project's
+# language+type (from app.properties), refresh only its .github/ (CI workflows)
+# into the project root — pom.xml, sources, and other root files are left
+# untouched. Same-named workflow files are overwritten; unrelated files already
+# under the project's .github/ are kept.
+apply_app_type_github() {
+    local project_root language app_type app_type_github
+    project_root="$(dirname "${D3V_DIR}")"
+    language="$(_get_prop app.language)"
+    app_type="$(_get_prop app.type)"
+
+    if [ -z "${language}" ] || [ -z "${app_type}" ]; then
+        echo "update-scripts: app.language/app.type missing from app.properties, skipping CI refresh."
+        return
+    fi
+
+    app_type_github="${src_dir}/github-actions/${language}/${app_type}/.github"
+    if [ -d "${app_type_github}" ]; then
+        echo "update-scripts: refreshing .github/ from github-actions template ${language}/${app_type}..."
+        mkdir -p "${project_root}/.github"
+        cp -R "${app_type_github}/." "${project_root}/.github/"
+        echo "update-scripts: refreshed ${language}/${app_type} CI into ${project_root}/.github"
+    else
+        echo "update-scripts: no .github/ template for '${language}/${app_type}' in github-actions, skipping CI refresh."
+    fi
+}
+apply_app_type_github
 
 echo "update-scripts: done. app.properties left untouched."

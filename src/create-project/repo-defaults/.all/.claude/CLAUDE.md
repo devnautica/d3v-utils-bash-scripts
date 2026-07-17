@@ -8,6 +8,8 @@ These rules override default tool-permission behavior for this repository. More 
 
 - **File reads**: reading any file in this directory or in the directory one level above it never requires a permission prompt. If the harness would otherwise prompt for a read in that scope, ask for permission once at the start of the session and don't ask again for the remainder of that session.
 
+- **`.d3v/` is off-limits**: the `.d3v/` directory at the project root is a copy of devnautica's shared tooling, downloaded and kept up to date remotely (by `.d3v/update-scripts/update-scripts.sh`) — not authored in this project. Ignore it: don't read, edit, or reference its contents, and never treat its scripts as this project's code. Any local change is overwritten on the next update. A `permissions.deny` rule in `.claude/settings.json` enforces this.
+
 ## Git
 
 Never run `git commit` or `git push` in this repository, even if asked to perform the full workflow. Make the requested changes and let the user review and commit/push manually.

@@ -65,8 +65,15 @@ copy_repo_defaults() {
     cp -R "${CREATE_PROJECT_DIR}/repo-defaults/${REPO_DEFAULTS_ALL_DIR}/" "${PROJECT_FULL_NAME}"
 
 
+
     cp -R "${CREATE_PROJECT_DIR}/../version/" "${PROJECT_FULL_NAME}/.d3v/version"
     cp -R "${CREATE_PROJECT_DIR}/../shell-utils/" "${PROJECT_FULL_NAME}/.d3v/shell-utils"
+
+    if [ -d "${CREATE_PROJECT_DIR}/../github-actions/${PROJECT_LANGUAGE}/${PROJECT_APP_TYPE}" ]; then
+        cp -R "${CREATE_PROJECT_DIR}/../github-actions/${PROJECT_LANGUAGE}/${PROJECT_APP_TYPE}/" "${PROJECT_FULL_NAME}"
+    else
+        echo "Skipping: ../github-actions/${PROJECT_LANGUAGE}/${PROJECT_APP_TYPE} does not exist"
+    fi
 
     if [ -d "${CREATE_PROJECT_DIR}/repo-defaults/${REPO_DEFAULTS_LANGS_DIR}/${PROJECT_LANGUAGE}" ]; then
         cp -R "${CREATE_PROJECT_DIR}/repo-defaults/${REPO_DEFAULTS_LANGS_DIR}/${PROJECT_LANGUAGE}/" "${PROJECT_FULL_NAME}"

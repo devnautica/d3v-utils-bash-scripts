@@ -4,6 +4,11 @@
       "Read(**)",
       "Read(../**)"
     ],
+    "deny": [
+      "Read(.d3v/**)",
+      "Edit(.d3v/**)",
+      "Write(.d3v/**)"
+    ],
     "additionalDirectories": [".."]
   },
   "hooks": {
