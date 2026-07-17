@@ -1,0 +1,67 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Maven Package
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  create-new-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    outputs:
+      version: ${{ steps.bump-version.outputs.version }}
+    steps:
+      - name: fix dubious ownership in repository
+        run: |
+          git config --global --add safe.directory /__w/$d3v{PROJECT_NAME}/$d3v{PROJECT_NAME}
+      - uses: actions/checkout@v5
+      - name: Create new version - Maven
+        id: bump-version
+        run: |
+          git config --global user.email "bot@devnautica.com"
+          git config --global user.name "bot"
+          chmod +x ./.d3v/version/version.sh
+          ./.d3v/version/version.sh
+          source create-new-version.env
+          echo "version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+        shell: bash
+  build:
+    needs: create-new-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    # create-new-version pushes the version bump as new commits (branch + merge to
+    # main) *during* its own run - actions/checkout's default ref (github.sha) is
+    # fixed at the commit that triggered this workflow, so without an explicit ref
+    # here this job would build the pre-bump code every time. Check out the tag
+    # create-new-version just pushed instead.
+    - uses: actions/checkout@v5
+      with:
+        ref: "version-${{ needs.create-new-version.outputs.version }}"
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+
+    - name: Publish to GitHub Packages Apache Maven
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
