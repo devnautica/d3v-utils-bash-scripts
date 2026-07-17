@@ -1,5 +1,5 @@
 # Devnautica(d3v) Bash Utils 
-test of versioning
+
 This repository is repository for building scripts that helps to do multiple things with developed software:
 - Version on github 
 - Run github actions to BUILD to
