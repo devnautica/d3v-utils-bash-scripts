@@ -162,7 +162,14 @@ apply_app_type_github() {
     else
         echo "update-scripts: no .github/ template for '${language}/${app_type}' in github-actions, skipping CI refresh."
     fi
+
+  # Add everything to the VCS, we want to keep version within VCS
+  git add -A "${project_root}/.d3v"
+
+  # Remove github actions, since they are not required once update is done
+  rm -fr "${project_root}/.github-actions"
 }
 apply_app_type_github
+
 
 echo "update-scripts: done. app.properties left untouched."
