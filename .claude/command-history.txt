@@ -1,0 +1,67 @@
+add to all CLAUDE.md files information that for any read of files in this directory and one directory above you don't have to ask for permission, or ask once at the beginning of the session and then not anymore in given session. In future there will be more ultimate rules, so prepare the files so I can manually add the rules there
+
+----
+
+the settings.json will be in this location, or where? So what is CLAUDE.md for?
+
+----
+
+Yes, add that settings.json permission rule
+
+----
+
+so this setting is global for my local machine, not for the project for everyone when pulls the repo?
+
+----
+
+I want it to be for everyone who pulls the repo
+
+----
+
+can I move there also CLAUDE.md? So everything related to claude will be in .claude ?
+
+----
+
+do nothing :-)
+
+----
+
+create github action specifically for this repository to build archive and deploy to the same github repository / packages. Add function in version.sh to obtain version if none of the specified languages to obtain language from /.d3v/app.properties and also version.
+
+----
+
+I've changed my mind, not only src, but also LICENSE and README.md in root folder
+
+----
+
+modify update-scripts.sh to download latest archive from github, unpackage it and copy to .d3v root folder of given project where it is run. Keep app.properties and do not overwrite it
+
+----
+
+update-scripts.sh may contain github-actions for given project, if this folder contains given language and type ( in this case bash and lib ) copy what is in "lib" folder to the root of the project
+
+----
+
+update-scripts.sh may contain github-actions for given project, if this folder contains given language and type ( in this case bash and lib ) copy what is in "lib" folder to the root of the project
+
+----
+
+yes, fix both
+
+----
+
+create this project repository rule for claude code, to ignore .d3v and all of its contents in root of the project/repository . Since it is scripts downloaded and being updated remotely. Basically it is copy of the scripts of this project when being deployed.
+
+----
+
+it seems that the changes were stashed or shelved by rebase and I've lost your work which I've sadly not commited, please fix it
+
+----
+
+show me a history of commands and add it to file in .claude history.txt
+
+----
+
+create global rule that in .claude are "command-history.txt" which is exact list of everything I tell you. Make it as a global rule for this repository, so you do it automatically every session. Every time I give you command, first thing you do is write this to this .claude/command-history.txt
+
+----

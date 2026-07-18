@@ -1,0 +1,69 @@
+# This workflow bumps this repo's own version, builds a tar.gz containing the
+# distributable src/ scripts plus LICENSE and README.md, and publishes it as a
+# GitHub Release asset in this same repository.
+
+name: Publish Release
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  create-new-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.bump-version.outputs.version }}
+      language: ${{ steps.bump-version.outputs.language }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Create new version
+        id: bump-version
+        run: |
+          git config --global user.email "bot@devnautica.com"
+          git config --global user.name "bot"
+          chmod +x ./.d3v/version/version.sh
+          ./.d3v/version/version.sh
+          source create-new-version.env
+          echo "version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "language=${PLATFORM_LANGUAGE}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  build:
+    needs: create-new-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # create-new-version pushes the version bump as new commits (branch + merge
+      # to main) *during* its own run - actions/checkout's default ref (github.sha)
+      # is fixed at the commit that triggered this workflow, so without an explicit
+      # ref here this job would build the pre-bump code every time. Check out the
+      # tag create-new-version just pushed instead.
+      - uses: actions/checkout@v5
+        with:
+          ref: "version-${{ needs.create-new-version.outputs.version }}"
+
+      - name: Build archive
+        id: build-archive
+        run: |
+          APP_FULLNAME="$(grep -m1 '^app.fullname=' .d3v/app.properties | cut -d= -f2-)"
+          VERSION="${{ needs.create-new-version.outputs.version }}"
+          ARCHIVE_DIR="${APP_FULLNAME}-${VERSION}"
+          mkdir "${ARCHIVE_DIR}"
+          cp -R src LICENSE README.md "${ARCHIVE_DIR}/"
+          tar -czf "${ARCHIVE_DIR}.tar.gz" "${ARCHIVE_DIR}"
+          echo "archive_name=${ARCHIVE_DIR}.tar.gz" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Publish GitHub Release
+        run: |
+          gh release create "version-${{ needs.create-new-version.outputs.version }}" \
+            "${{ steps.build-archive.outputs.archive_name }}" \
+            --title "${{ needs.create-new-version.outputs.version }}" \
+            --notes "Language: ${{ needs.create-new-version.outputs.language }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash

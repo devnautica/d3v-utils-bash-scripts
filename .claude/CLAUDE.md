@@ -8,6 +8,8 @@ These rules override default tool-permission behavior for this repository. More 
 
 - **File reads**: reading any file in this directory or in the directory one level above it never requires a permission prompt. If the harness would otherwise prompt for a read in that scope, ask for permission once at the start of the session and don't ask again for the remainder of that session.
 
+- **Command history**: every user prompt is logged verbatim to `.claude/command-history.txt` (entries separated by `----`). This happens automatically via a `UserPromptSubmit` hook in `.claude/settings.json` — it runs before the prompt is processed, so it captures every message first thing, every session. If that hook is ever unavailable, append the user's message to that file yourself before doing anything else.
+
 ## Git
 
 Never run `git commit` or `git push` in this repository, even if asked to perform the full workflow. Make the requested changes and let the user review and commit/push manually.

@@ -4,11 +4,6 @@
       "Read(**)",
       "Read(../**)"
     ],
-    "deny": [
-      "Read(.d3v/**)",
-      "Edit(.d3v/**)",
-      "Write(.d3v/**)"
-    ],
     "additionalDirectories": [".."]
   },
   "hooks": {
@@ -20,6 +15,17 @@
             "type": "command",
             "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -n \"$f\" ] && git add -- \"$f\"; } 2>/dev/null || true",
             "statusMessage": "git add new file"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{ jq -r '.prompt // empty'; printf '\\n----\\n\\n'; } >> \"${CLAUDE_PROJECT_DIR:-.}/.claude/command-history.txt\" 2>/dev/null || true",
+            "statusMessage": "logging prompt"
           }
         ]
       }

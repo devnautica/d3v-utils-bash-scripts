@@ -18,6 +18,17 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{ jq -r '.prompt // empty'; printf '\\n----\\n\\n'; } >> \"${CLAUDE_PROJECT_DIR:-.}/.claude/command-history.txt\" 2>/dev/null || true",
+            "statusMessage": "logging prompt"
+          }
+        ]
+      }
     ]
   }
 }
