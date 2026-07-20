@@ -15,7 +15,7 @@
                 </repository>
                 <repository>
                     <id>github</id>
-                    <url>https://maven.pkg.github.com/$d3v{ORG_NAME}/thymeleaf-component-dialect-java-lib</url>
+                    <url>https://maven.pkg.github.com/$d3v{ORG_NAME}/thymeleaf-component-dialect</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
