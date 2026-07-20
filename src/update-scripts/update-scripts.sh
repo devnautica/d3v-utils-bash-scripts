@@ -93,11 +93,24 @@ apply_template_placeholders() {
     local target_dir="$1"
     [ -d "${target_dir}" ] || return 0
     echo "update-scripts: substituting \$${TEMPLATE_PLACEHOLDER_PREFIX}{...} placeholders under ${target_dir}..."
-    local file placeholders placeholder var_name var_value
+    local file placeholders placeholder var_name var_value grep_status
     local placeholder_prefix="\$${TEMPLATE_PLACEHOLDER_PREFIX}{"
     while IFS= read -r -d '' file; do
         grep -Iq . "${file}" 2>/dev/null || continue # skip binary files
-        placeholders=$(grep -oE '\$'"${TEMPLATE_PLACEHOLDER_PREFIX}"'\{[A-Za-z_][A-Za-z0-9_]*\}' "${file}" | sort -u)
+        # grep exits 1 (not an error) when a file has no placeholder at all - the
+        # common case. Piping straight into `sort -u` would lose that distinction:
+        # under `set -o pipefail`, the pipeline reports non-zero on every "no match"
+        # file, tripping `set -e` and silently killing the whole script. So capture
+        # grep's own exit status first, and only let real errors (>1) propagate.
+        placeholders="$(grep -oE '\$'"${TEMPLATE_PLACEHOLDER_PREFIX}"'\{[A-Za-z_][A-Za-z0-9_]*\}' "${file}")" || {
+            grep_status=$?
+            if [ "${grep_status}" -ne 1 ]; then
+                echo "update-scripts: ERROR — grep failed (exit ${grep_status}) scanning ${file}" >&2
+                exit "${grep_status}"
+            fi
+            placeholders=""
+        }
+        placeholders="$(printf '%s\n' "${placeholders}" | sort -u)"
         for placeholder in ${placeholders}; do
             var_name="${placeholder#$placeholder_prefix}"
             var_name="${var_name%\}}"
