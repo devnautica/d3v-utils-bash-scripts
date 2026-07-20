@@ -228,8 +228,8 @@ apply_app_type_github() {
     if [ -d "${app_type_github}" ]; then
         echo "update-scripts: refreshing .github/ from github-actions template ${language}/${app_type}..."
         mkdir -p "${project_root}/.github"
-        apply_template_placeholders "${project_root}/.github"
         cp -R "${app_type_github}/." "${project_root}/.github/"
+        apply_template_placeholders "${project_root}/.github"
         echo "update-scripts: refreshed ${language}/${app_type} CI into ${project_root}/.github"
     else
         echo "update-scripts: no .github/ template for '${language}/${app_type}' in github-actions, skipping CI refresh."

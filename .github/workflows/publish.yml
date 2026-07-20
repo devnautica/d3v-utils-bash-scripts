@@ -1,6 +1,6 @@
 # This workflow bumps this repo's own version, builds a tar.gz containing the
 # distributable src/ scripts plus LICENSE and README.md, and publishes it as a
-# GitHub Release asset in this same repository.
+# GitHub Release asset in this same repository.devnautica test
 
 name: Publish Release
 
