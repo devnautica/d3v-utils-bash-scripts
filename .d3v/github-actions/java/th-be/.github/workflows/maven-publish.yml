@@ -1,0 +1,104 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Maven Package
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  delete-old-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Check if package has any published versions
+        id: check-package
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/orgs/$d3v{ORG_NAME}/packages/maven/com.$d3v{ORG_NAME}.$d3v{PROJECT_NAME}")
+          echo "exists=$([ "$status" = "200" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - uses: actions/delete-package-versions@v5
+        if: steps.check-package.outputs.exists == 'true'
+        with:
+          package-name: 'com.$d3v{ORG_NAME}.$d3v{PROJECT_NAME}'
+          package-type: 'maven'
+          min-versions-to-keep: 20
+  create-new-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: fix dubious ownership in repository
+        run: |
+          git config --global --add safe.directory /__w/$d3v{PROJECT_NAME}/$d3v{PROJECT_NAME}
+      - uses: actions/checkout@v4
+      - name: Create new version - Maven
+        run: |
+          git config --global user.email "bot@$d3v{ORG_NAME}.com"
+          git config --global user.name "bot"
+          chmod +x ./.d3v/version/version.sh
+          ./.d3v/version/version.sh
+        shell: bash
+  build:
+
+    runs-on: ubuntu-latest
+    needs: create-new-version
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        server-id: github
+
+    - name: Compute Maven cache key
+      # setup-java's built-in `cache: maven` keys off a hash of pom.xml, but
+      # create-new-version bumps pom.xml's <version> on every single run, so that
+      # hash - and the cache key - changes every run and never hits. Hash pom.xml
+      # with only that one volatile project-version line stripped out instead, so
+      # the key only moves when dependencies/plugins/parent version actually change.
+      id: pom-hash
+      run: |
+        hash=$(awk '
+            { if (!done && seen_parent && /<version>/) { done=1; next }
+              if (/<\/parent>/) { seen_parent=1 }
+              print }
+          ' pom.xml | sha256sum | cut -d" " -f1)
+        echo "hash=$hash" >> "$GITHUB_OUTPUT"
+    - name: Cache Maven repository
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: maven-repo-${{ runner.os }}-${{ steps.pom-hash.outputs.hash }}
+        restore-keys: |
+          maven-repo-${{ runner.os }}-
+
+    - name: Check variables
+      run: |
+        ls -la
+        cat .github/workflows/settings.xml
+        cat pom.xml
+        echo $github_workspace
+        echo $github.workspace
+        echo $GITHUB_WORKSPACE
+        echo ${{ github.workspace }}
+    - name: Build and publish to GitHub Packages Apache Maven
+      run: |
+        mvn -s $GITHUB_WORKSPACE/.github/workflows/settings.xml clean deploy -U -DskipTests
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        GH_PAT_FOR_ACTIONS_TOKEN: ${{ secrets.GH_PAT_FOR_ACTIONS_TOKEN }}
