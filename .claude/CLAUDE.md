@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 These rules override default tool-permission behavior for this repository. More ultimate rules will be added by hand over time — append new ones below the existing bullets, keep each self-contained.
 
-- **File reads**: reading any file in this directory or in the directory one level above it never requires a permission prompt. If the harness would otherwise prompt for a read in that scope, ask for permission once at the start of the session and don't ask again for the remainder of that session.
+- **File reads**: reading any file, anywhere, never requires a permission prompt — enforced via `.claude/settings.json`'s `permissions.allow: ["Read"]` (the bare tool-name rule, not a glob pattern — globs like `Read(**)` proved unreliable and still prompted). The only exception is `.env`-style files (`.env`, `.env.*`, and the same at any depth), which are in `permissions.ask` and should still prompt. Don't rely on a text instruction alone to suppress this prompt — fix it in `settings.json`.
 
 - **Command history**: every user prompt is logged verbatim to `.claude/command-history.txt` (entries separated by `----`). This happens automatically via a `UserPromptSubmit` hook in `.claude/settings.json` — it runs before the prompt is processed, so it captures every message first thing, every session. If that hook is ever unavailable, append the user's message to that file yourself before doing anything else.
+
+- **Root `.d3v/` folder**: this repo has its own top-level `.d3v/` (sibling of `src/`), populated by running `create-project`/`update-scripts` against this repo itself for local dogfooding/testing. It is not source — `src/` is the single source of truth (see Purpose below). Don't read, `find`/`grep` into, or otherwise use `.d3v/` as context when reasoning about this repo's code; if a task specifically involves inspecting or modifying that dogfood output, only then look at it, and say so.
 
 ## Git
 

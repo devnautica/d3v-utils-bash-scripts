@@ -1,8 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Read(**)",
-      "Read(../**)"
+      "Read"
+    ],
+    "ask": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)"
     ],
     "deny": [
       "Read(.d3v/**)",

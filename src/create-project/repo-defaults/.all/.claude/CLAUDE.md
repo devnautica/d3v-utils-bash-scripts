@@ -10,6 +10,8 @@ These rules override default tool-permission behavior for this repository. More 
 
 - **Command history**: every user prompt is logged verbatim to `.claude/command-history.txt` (entries separated by `----`). This happens automatically via a `UserPromptSubmit` hook in `.claude/settings.json` — it runs before the prompt is processed, so it captures every message first thing, every session. If that hook is ever unavailable, append the user's message to that file yourself before doing anything else.
 
+- **Root `.d3v/` folder**: this repo has its own top-level `.d3v/` (sibling of `src/`), populated by running `create-project`/`update-scripts` against this repo itself for local dogfooding/testing. It is not source — `src/` is the single source of truth (see Purpose below). Don't read, `find`/`grep` into, or otherwise use `.d3v/` as context when reasoning about this repo's code; if a task specifically involves inspecting or modifying that dogfood output, only then look at it, and say so.
+
 ## Git
 
 Never run `git commit` or `git push` in this repository, even if asked to perform the full workflow. Make the requested changes and let the user review and commit/push manually.
